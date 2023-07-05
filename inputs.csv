@@ -1,0 +1,32 @@
+type,inputId,default,other
+numericInput,"minyear",2017,0
+numericInput,"maxyear",2017,0
+textInput,"STATE","CA",0
+textInput,"COUNTY","",0
+textInput,"METRO","",0
+selectInput,"xrange1","",""
+numericInput,"minrange1",0,0
+numericInput,"maxrange1",0,0
+selectInput,"xrange2","",""
+numericInput,"minrange2",0,0
+numericInput,"maxrange2",0,0
+selectInput,"units","Percent",""
+selectInput,"geo","METRO",""
+selectInput,"occ","Software developers, applications and systems software",""
+selectInput,"empstat","Employed",""
+selectInput,"group","INCWAGE20","|"
+numericInput,"sortn",3,0
+radioButtons,"sortdir","Descending",0
+numericInput,"decplaces","1",0
+numericInput,"mincount","5000",0
+numericInput,"hdrwidth","40",0
+numericInput,"geowidth","40",0
+numericInput,"colwidth","40",0
+numericInput,"totwidth","240",0
+numericInput,"totrows","900",0
+numericInput,"ymin",0,0
+numericInput,"ymax",0,0
+textInput,"color","Set3",0
+selectInput,"geomtype","Bar Plot",""
+checkboxInput,"linetype","FALSE",""
+tabsetPanel,"tabs","Output",""
