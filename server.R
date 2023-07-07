@@ -232,8 +232,14 @@ shinyServer(
             #     else gg <- gg + geom_line(size=1)
             # }
             if (input$geomtype == "Line Graph"){
-                xvar <- rowvar
-                gvar <- input$group[1]
+                if (input$flipxy){
+                    gvar <- rowvar
+                    xvar <- input$group[1]
+                }
+                else{
+                    xvar <- rowvar
+                    gvar <- input$group[1]
+                }
                 #gmm <<- mm
                 if (input$cmin > 0 | input$cmax > 0){
                     mm <- mm[as.numeric(mm[[gvar]]) >= input$cmin & as.numeric(mm[[gvar]]) <= input$cmax,]
