@@ -223,7 +223,13 @@ shinyServer(
             if (minyear < maxyear | geovar == "Nation"){
                 rowvar <- "Year"
             }
-            colnames(mm) <- c("Year",geovar,"Count",input$group[1],"Counts")
+            if (input$rowvar != "(default)"){
+                rowvar <- input$rowvar
+                colnames(mm) <- c("Year",rowvar,"Count",input$group[1],"Counts")
+            }
+            else{
+                colnames(mm) <- c("Year",geovar,"Count",input$group[1],"Counts")
+            }
             mm[,2] <- substr(mm[,2],1,input$geowidth)
             # if (input$geomtype == "Line Graph"){
             #     gg <- ggplot(data=mm, aes_string(x="Legend",y="Counts",group=xvar,colour=xvar,shape=xvar)) +
@@ -543,6 +549,8 @@ shinyServer(
             colnames(occ) <<- c("column","min","max","label")
             occ_cis <<- read.csv("occ_cis.csv", header = FALSE, stringsAsFactors = FALSE)
             colnames(occ_cis) <<- c("column","min","max","label")
+            occ_computer <<- read.csv("occ_computer.csv", header = FALSE, stringsAsFactors = FALSE)
+            colnames(occ_computer) <<- c("column","min","max","label")
             occ1990 <<- read.csv("occ1990.csv", header = FALSE, stringsAsFactors = FALSE)
             colnames(occ1990) <<- c("column","min","max","label")
             degfield <<- read.csv("degfield.csv", header = FALSE, stringsAsFactors = FALSE)
@@ -913,7 +921,12 @@ shinyServer(
                     for (i in 1:NROW(g1)){
                         dd$group1[dd[[g1$column[i]]] >= g1$min[i] & dd[[g1$column[i]]] <= g1$max[i]] <- substr(g1$label[i],1,hdrwidth1+3)
                     }
-                    if (input$geo == "COUNTY"){
+                    if (input$rowvar != "(default)"){
+                        g1 <- get(tolower(input$rowvar))
+                        #groups <- paste0(input$rowvar,",", groups, collapse=',')
+                        groups <- paste0(g1[1,1],",", groups, collapse=',')
+                    }
+                    else if (input$geo == "COUNTY"){
                         #groups <- paste0("COUNTY,", input$group, collapse=',')
                         groups <- paste0("COUNTY,", groups, collapse=',')
                         #groups <- "COUNTY, group1"
@@ -954,7 +967,10 @@ shinyServer(
                     }
                     gg <- gg[order(-COUNT)]
                     if (ngroup > 1){
-                        if (input$geo == "METRO"){
+                        if (input$rowvar != "(default)"){
+                            gg <- cast(gg, as.formula(paste0(input$rowvar,"~group1+group2")), value = "COUNT")
+                        }
+                        else if (input$geo == "METRO"){
                             gg <- cast(gg, METRO~group1+group2, value = "COUNT")
                         }
                         else if (input$geo == "COUNTY"){
@@ -972,7 +988,18 @@ shinyServer(
                         }
                     }
                     else{
-                        if (input$geo == "METRO"){
+                        if (input$rowvar != "(default)"){
+                            rowvar <- input$rowvar
+                            g1 <- get(tolower(rowvar))
+                            dd <- gg
+                            for (i in 1:NROW(g1)){
+                                gg[[rowvar]][dd[[g1$column[i]]] >= g1$min[i] & dd[[g1$column[i]]] <= g1$max[i]] <- g1$label[i]
+                            }
+                            gg <- cast(gg, as.formula(paste0(rowvar,"~group1")), sum, value = "COUNT")
+                            gg <- gg[order(gg[[rowvar]]),]
+                            gg[[rowvar]] <- gsub(".--","",gg[[rowvar]])
+                        }
+                        else if (input$geo == "METRO"){
                             gg <- cast(gg, METRO~group1, value = "COUNT")
                         }
                         else if (input$geo == "COUNTY"){
@@ -1058,12 +1085,14 @@ shinyServer(
                 }
                 # Sort by specified sort fields
                 sortn <- input$sortn
-                if (sortn == 0) sortn <- 1
-                if (sortn < 0) sortn <- sortn + NCOL(xx) + 1
-                if (input$sortdir == "Ascending") xx <- xx[order(xx[sortn]),]
-                else{
-                    #if (class(xx[[input$xsort]])=="factor") xx <- xx[rev(order(xx[input$sortn])),]
-                    xx <- xx[order(-xx[sortn]),]
+                #if (sortn == 0) sortn <- 1
+                if (sortn != 0){
+                    if (sortn < 0) sortn <- sortn + NCOL(xx) + 1
+                    if (input$sortdir == "Ascending") xx <- xx[order(xx[sortn]),]
+                    else{
+                        #if (class(xx[[input$xsort]])=="factor") xx <- xx[rev(order(xx[input$sortn])),]
+                        xx <- xx[order(-xx[sortn]),]
+                    }
                 }
                 if (is.null(yy)){
                     yy <- xx
